@@ -12,7 +12,7 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 
 public class Purchase {
-    private int balance;
+    private long balance; // use long in case the user is wealthy and over-feeds machine!
     private FileWriter log;
 
     public Purchase() {
@@ -23,14 +23,15 @@ public class Purchase {
             exit(1);
         }
 
-        balance = 0; // until you put in money
+        balance = 0; // until you put in money, anyway
     }
 
     public void feedMoney() {
-        int oldBalance = balance;
+        long oldBalance = balance;
         int bill = 0;
 
-        System.out.println("\nInsert moneys please!");
+        System.out.println("\nFeed me some moneys, please!");
+        System.out.print(">>> ");
 
         do {
             try {
@@ -44,7 +45,9 @@ public class Purchase {
                 case 5: balance += 500; break;
                 case 10: balance += 1000; break;
                 case 20: balance += 2000; break;
-                default: System.out.println("Please insert 1/2/5/10/20 dollar bills!");
+                default:
+                    System.out.println("Please feed me only 1/2/5/10/20 dollars!");
+                    System.out.print(">>> ");
             }
         } while (bill < 1 || (bill > 2 && bill <5) || (bill > 5 && bill < 10) || (bill > 10 && bill < 20) || bill > 20);
 
@@ -56,6 +59,7 @@ public class Purchase {
 
         i.printStock();
         System.out.println("\nSelect Product");
+        System.out.print(">>> ");
 
         do {
             Scanner userInput = new Scanner(System.in);
@@ -64,34 +68,35 @@ public class Purchase {
 
             if ((balance - price) >= 0) {
                 if (i.dispenseStock(code)) {
-                    int oldBalance = balance;
+                    long oldBalance = balance;
                     balance -= price;
                     valid = true;
 
                     System.out.println("\nItem dispensed! " + i.removeReact(code));
                     System.out.println("Product: " + i.getName(code));
                     System.out.println("Purchase cost: $" + String.format("%.2f", (price / (double) 100)));
+
                     writeLog(i.getName(code) + " " + code.toUpperCase() + VendingMachine.format(oldBalance) + VendingMachine.format(balance));
                 }
             } else {
                 System.out.println("\nInsufficient funds!");
-                break;
+                break; // exit loop early
             }
         } while (!valid);
     }
 
-    public void dispenseChange(int dispenseAmount) {
-        int quarters = dispenseAmount / 25;
-        int dimes = (dispenseAmount % 25) / 10;
-        int nickels = (dispenseAmount % 25 % 10) / 5;
-        int oldBalance = balance;
+    public void dispenseChange(long amount) {
+        int quarters = (int) (amount / 25);
+        int dimes = (int) ((amount % 25) / 10);
+        int nickels = (int) ((amount % 25 % 10) / 5);
+        long oldBalance = balance;
         balance = 0;
 
         System.out.println("\nYour change is: " + quarters + " quarter(s), " + dimes + " dime(s), and " + nickels + " nickel(s)");
         writeLog("GIVE CHANGE:" + VendingMachine.format(oldBalance) + VendingMachine.format(balance));
     }
 
-    public int getBalance() { return balance; }
+    public long getBalance() { return balance; }
 
     private void writeLog(String action) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");

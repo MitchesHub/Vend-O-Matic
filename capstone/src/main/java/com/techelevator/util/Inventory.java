@@ -4,15 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import static java.lang.System.exit;
 
 public class Inventory {
-    private final List<String> stock;
-    private final Map<String, Integer> quantity;
+    private final ArrayList<String> stock;
+    private final HashMap<String, Integer> quantity;
 
     public Inventory() {
         stock = new ArrayList<>();
@@ -43,7 +41,7 @@ public class Inventory {
         }
     }
 
-    boolean dispenseStock(String code) {
+    protected boolean dispenseStock(String code) {
         for (String line: stock) {
             String[] data = line.split("\\|");
             String key = data[0];
@@ -55,31 +53,22 @@ public class Inventory {
                     quantity.put(key, q - 1);
 
                     return true;
-                } else System.out.println("SOLD OUT! Please select another.");
+                } else {
+                    System.out.println("SOLD OUT! Please select another.");
+                    System.out.print(">>> ");
+                }
 
                 return false;
             }
         }
 
-        System.out.println("Product code not found.");
+        System.out.println("Product code not found! Please try again.");
+        System.out.print(">>> ");
 
         return false;
     }
 
-    public void printStock() {
-        System.out.println("\nPlease make a selection");
-
-        for (String line: stock) {
-            String[] data = line.split("\\|"); // need to escape the pipe character
-            String key = data[0];
-
-            System.out.print(key + ". " + data[1] + " (");
-            System.out.print((quantity.get(key) > 0) ? "$" + data[2] : "SOLD OUT");
-            System.out.print(")\n");
-        }
-    }
-
-    String removeReact(String code) {
+    protected String removeReact(String code) {
         String react = "Om Nom Nom"; //shouldn't see this
 
         for (String line: stock) {
@@ -98,7 +87,25 @@ public class Inventory {
         return react + ", Yum!";
     }
 
-    String getName(String code) {
+    public void printStock() {
+        System.out.println("\nPlease make a selection");
+
+        for (String line: stock) {
+            String[] data = line.split("\\|"); // need to escape the pipe character
+            String key = data[0];
+            int value = quantity.get(key);
+
+            System.out.print(key + ". " + data[1] + " - $" + data[2] + " (");
+            System.out.print((value > 0) ? value + " Available" : "SOLD OUT");
+            System.out.print(")\n");
+        }
+    }
+
+    public ArrayList<String> getStock() {
+        return stock;
+    }
+
+    public String getName(String code) {
         for (String line: stock) {
             String[] data = line.split("\\|");
 
@@ -108,7 +115,7 @@ public class Inventory {
         return null;
     }
 
-    int getPrice(String code) {
+    public int getPrice(String code) {
         for (String line: stock) {
             String[] data = line.split("\\|");
 
