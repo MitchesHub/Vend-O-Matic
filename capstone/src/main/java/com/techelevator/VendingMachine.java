@@ -13,14 +13,17 @@ import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
+import com.techelevator.util.Sounds;
+import java.lang.Thread;
+
 
 import static java.lang.System.exit;
 
-public class VendingMachine {
+public class VendingMachine extends Thread{
     private final Inventory i;
     private Purchase p;
 
-    private VendingMachine() {
+    public VendingMachine() {
         i = new Inventory();
         i.reStock();
 
@@ -40,7 +43,7 @@ public class VendingMachine {
         System.out.println("************************** Vendo-Matic 800 *************************");
     }
 
-    private void mainMenu() {
+    public void mainMenu() throws InterruptedException{
         Scanner userInput;
         int choice = 0;
 
@@ -48,7 +51,8 @@ public class VendingMachine {
         System.out.println("(1) Display Vending Machine Items");
         System.out.println("(2) Purchase");
         System.out.println("(3) Exit\n");
-        System.out.print(">>> ");
+
+        System.out.print("Enter menu selection: ");
 
         do {
             try {
@@ -57,31 +61,35 @@ public class VendingMachine {
             } catch (InputMismatchException ignored) {}
 
             if (choice < 1 || choice > 4) {
-                System.out.println("Please enter a choice between 1 and 3!");
-                System.out.print(">>> ");
+                Sounds.playSoundError();
+                System.out.print("Please enter a choice between 1 and 3! ");
             }
         } while (choice < 1 || choice > 4);
 
         switch (choice) {
             case 1:
+                Sounds.playSoundBeep();
                 i.printStock();
                 mainMenu();
                 break;
             case 2:
+                Sounds.playSoundBeep();
                 p = new Purchase();
                 purchaseMenu();
                 break;
             case 3:
+                Sounds.playSoundClose();
                 System.out.println("Thanks for using me!");
+                Thread.sleep(1500);  // wait 1.5 seconds before closing to allow sound to play
                 exit(0); // donezo
                 break;
-            case 4:
+            case 4: //secret option 4 to create sales report
                 createReport();
                 mainMenu();
-        } //secret option 4 to create sales report
+        }
     }
 
-    private void purchaseMenu() {
+    public void purchaseMenu() throws InterruptedException{
         Scanner userInput;
         int choice = 0;
 
@@ -89,8 +97,10 @@ public class VendingMachine {
         System.out.println("(1) Feed Moneys");
         System.out.println("(2) Select Product");
         System.out.println("(3) Finish Transaction\n");
+
         System.out.println("Current balance:" + format(p.getBalance()) + "\n");
-        System.out.print(">>> ");
+
+        System.out.print("\nEnter menu selection: ");
 
         do {
             try {
@@ -99,19 +109,22 @@ public class VendingMachine {
             } catch (InputMismatchException ignored) {}
 
             if (choice < 1 || choice > 3) {
-                System.out.println("Please enter a choice between 1 and 3!");
-                System.out.print(">>> ");
+                Sounds.playSoundError();
+                System.out.print("Please enter a choice between 1 and 3! ");
             }
         } while (choice < 1 || choice > 3);
 
         switch (choice) {
             case 1:
+                Sounds.playSoundBeep();
                 p.feedMoney();
                 break;
             case 2:
+                Sounds.playSoundBeep();
                 p.selectProduct(i);
                 break;
             case 3:
+                Sounds.playSoundChangeReturn();
                 p.dispenseChange(p.getBalance());
                 mainMenu();
         }
@@ -121,11 +134,12 @@ public class VendingMachine {
         purchaseMenu();
     }
 
-    private void createReport() {
+    // method to create a sales report when hidden menu selection is accessed
+    public void createReport() {
         Scanner fileInput = null;
 
         try {
-            fileInput = new Scanner(new File("capstone\\src\\main\\java\\com\\techelevator\\Log.txt"));
+            fileInput = new Scanner(new File("src/main/resources/Log.txt"));
         } catch (FileNotFoundException e) {
             System.out.println("\nLog file not found for reading! Perhaps this machine is new?");
             exit(1);
@@ -136,7 +150,7 @@ public class VendingMachine {
         LocalDateTime now = LocalDateTime.now();
 
         try { // noinspection resource
-            report = new FileWriter("capstone\\src\\main\\java\\com\\techelevator\\Report_" + dtf.format(now) + ".txt", false);
+            report = new FileWriter("src/main/resources/Report_" + dtf.format(now) + ".txt", false);
         } catch (IOException e) {
             System.out.println("\nUnable to create sales report!");
             exit(1);
@@ -186,8 +200,9 @@ public class VendingMachine {
         return " $" + String.format("%.2f", (double) value / 100);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         VendingMachine vm = new VendingMachine();
+        Sounds.playSoundOpen();
         vm.mainMenu();
     }
 }

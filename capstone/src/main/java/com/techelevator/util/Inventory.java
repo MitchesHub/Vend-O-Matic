@@ -12,14 +12,16 @@ public class Inventory {
     private final ArrayList<String> stock;
     private final HashMap<String, Integer> quantity;
 
+
     public Inventory() {
         stock = new ArrayList<>();
         quantity = new HashMap<>();
     }
 
+    // this method resets inventory max when program runs
     public void reStock() {
         final int slotMax = 5;
-        File vendingMachineInventory = new File("capstone\\src\\main\\java\\com\\techelevator\\util\\vendingmachine.csv");
+        File vendingMachineInventory = new File("src/main/resources/vendingmachine.csv");
         Scanner fileReader = null;
 
         try {
@@ -40,7 +42,7 @@ public class Inventory {
             quantity.put(details[0], slotMax);
         }
     }
-
+    // method to dispense inventory and decrement its quantity
     protected boolean dispenseStock(String code) {
         for (String line: stock) {
             String[] data = line.split("\\|");
@@ -54,20 +56,18 @@ public class Inventory {
 
                     return true;
                 } else {
-                    System.out.println("SOLD OUT! Please select another.");
-                    System.out.print(">>> ");
+                    System.out.print("SOLD OUT! Please select another product. ");
                 }
 
                 return false;
             }
         }
 
-        System.out.println("Product code not found! Please try again.");
-        System.out.print(">>> ");
+        System.out.print("Product code not found! Please try again. ");
 
         return false;
     }
-
+    // method to add a reaction to the customer after purchasing a product
     protected String removeReact(String code) {
         String react = "Om Nom Nom"; //shouldn't see this
 
@@ -86,7 +86,7 @@ public class Inventory {
 
         return react + ", Yum!";
     }
-
+    // method to print inventory to user
     public void printStock() {
         System.out.println("\nPlease make a selection");
 
